@@ -1,0 +1,130 @@
+@startuml
+abstract class Entity
+{
+-__sim
++Entity(simulation:Simulation)
++{abstract}start()
++{abstract}handle_event(event:Event)
++end(clock:float)
+#_add_event(event:Event)
+}
+
+abstract class Simulation
+{
++clock:float
+-__future_event_list:queue.PriorityQueue
++Simulation()
++run()
+#{abstract}_start():float
+-__run(float)
+#{abstract}_end(clock)
++add_event(event:Event)
+}
+
+class Event
+{
++time:float
++recipient:Any
++item:Any
+
+}
+
+enum Product
+{
+P1
+P2
+P3
+}
+
+enum Component
+{
+C1
+C2
+C3
+}
+
+
+class WorkStation
+{
++product_type:Product
++buffer_list:list<buffer>
++idle:bool
++time_idle:float
++products_produced:float
+
++WorkStation(product_type:Product, buffer_list:list<buffer>)
++has_required_components()
++create_product()
++handle_event(event:Event)
+}
+
+class Inspector
+{
++type:Component
++buffer:list<buffer>
++blocked:bool
++blocked_component:Component
++time_blocked:float
++total_time_blocked:float
+
++Inspector(cp)
++create_component()
++handle_event(event:Event)
+}
+
+class Buffer
+{
++component_type:Component
++priority:int
++queue:list<Component>
++work_station:WorkStation
++inspector:Inspector
++Buffer(component_type:Component, priority:int)
++add_work_station(work_station)
++add_inspector(inspector:Inspector)
++add_component(component:Component)
++pop_component()
+
+}
+
+class ManufacturingSim
+{
++buffer1:Buffer
++buffer2:Buffer
++buffer3:Buffer
++buffer4:Buffer
++buffer5:Buffer
+
++inspector1:Inspector
++inspector2:Inspector
+
++workstation1:WorkStation
++workstation2:WorkStation
++workstation3:WorkStation
+
++ManufacturingSim()
+#_start():float
++run()
+#_end()
+}
+
+Entity <|-- Inspector
+Entity <|-- WorkStation
+Entity <|-- Buffer
+
+
+Simulation <|-- ManufacturingSim
+
+'buffers and stuff have 1 to 1 mapping
+
+ManufacturingSim "1" o-- "N" Entity
+
+Inspector -- Component:produces
+WorkStation -- Component:consumes
+Buffer -- Component:queues
+WorkStation -- Product:produces
+
+Entity -- Event:produces and consumes
+Simulation -- Event: queues
+
+@enduml

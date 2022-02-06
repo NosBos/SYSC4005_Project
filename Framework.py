@@ -12,7 +12,7 @@ class Event:
     item: Any = field(compare=False)  # the event information
 
     def __repr__(self):
-        return f"{self.time} : {self.item} "
+        return f"{self.time} : {str(self.item)} "
 
 
 class Simulation(ABC):
@@ -28,24 +28,18 @@ class Simulation(ABC):
     def __init__(self):
         self.clock = 0
         self.__future_event_list = queue.PriorityQueue()
+        self.entity_list = []
         pass
 
-    def run(self) -> None:
+    def run(self, entity_list, runtime=-1) -> None:
         """
         Runs the simulation from start() to end()
         :return: None
         """
-        end_time = self._start()
-        self.__run(runtime=end_time)
+        self.entity_list = entity_list
+        self.print_sim_table_header()
+        self.__run(runtime=runtime)
         self._end(self.clock)
-        pass
-
-    @abc.abstractmethod
-    def _start(self) -> float:
-        """
-        Used to put all the entities into a started state and add initial events to FEL
-        :return: the runtime of the simulation
-        """
         pass
 
     def __run(self, runtime: float) -> None:
@@ -55,9 +49,10 @@ class Simulation(ABC):
             pass
 
         # pop events and execute until there's none left or end event reached
+        evt = ''
         while len(self.__future_event_list.queue):
+            self.print_sim_table_row()
             evt = self.__future_event_list.get()
-            print(f" Time: {self.clock}  Event: {evt.item}   List:  {str(self.__future_event_list.queue)} \n")
             if evt.item == Simulation.SIMULATION_END:
                 break
             self.clock = evt.time
@@ -65,12 +60,31 @@ class Simulation(ABC):
             pass
         pass
 
-    @abc.abstractmethod
-    def _end(self, clock) -> None:
+    def print_sim_table_header(self):
+        print('clock', end=',')
+        for entity in self.entity_list:
+            entity.start()
+            print(entity.name(), end=',')
+            pass
+        print('FEL', end=',')
+        print()
+        pass
+
+    def print_sim_table_row(self):
+        print(self.clock, end=',')
+        for e in self.entity_list:
+            e.print_state()
+            pass
+        print(f'"{str(self.__future_event_list.queue)}"')
+        pass
+
+    def end(self, clock) -> None:
         """
         Called when the simulation is done. Used to output all statistics
         :return: None
         """
+        for entity in self.entity_list:
+            entity.end()
         pass
 
     def add_event(self, event: Event) -> None:
@@ -92,8 +106,9 @@ class Entity(ABC):
 
     """
 
-    def __init__(self, simulation: Simulation):
+    def __init__(self, simulation: Simulation, name):
         self.__sim = simulation
+        self.__name = name
 
     @abstractmethod
     def start(self) -> None:
@@ -128,5 +143,12 @@ class Entity(ABC):
         """
         self.__sim.add_event(event)
         pass
+
+    @abc.abstractmethod
+    def print_state(self):
+        pass
+
+    def name(self) -> str:
+        return self.__name
 
     pass
