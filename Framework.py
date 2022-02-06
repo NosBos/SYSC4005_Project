@@ -10,7 +10,9 @@ class Event:
     time: float  # priority of event
     recipient: Any = field(compare=False)  # who shall receive the event
     item: Any = field(compare=False)  # the event information
-    pass
+
+    def __repr__(self):
+        return f"{self.time} : {self.item} "
 
 
 class Simulation(ABC):
@@ -55,6 +57,7 @@ class Simulation(ABC):
         # pop events and execute until there's none left or end event reached
         while len(self.__future_event_list.queue):
             evt = self.__future_event_list.get()
+            print(f" Time: {self.clock}  Event: {evt.item}   List:  {str(self.__future_event_list.queue)} \n")
             if evt.item == Simulation.SIMULATION_END:
                 break
             self.clock = evt.time
