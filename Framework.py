@@ -37,7 +37,7 @@ class Simulation(ABC):
         :return: None
         """
         self.entity_list = entity_list
-        self.print_sim_table_header()
+        self.__print_sim_table_header()
         self.__run(runtime=runtime)
         self._end(self.clock)
         pass
@@ -51,7 +51,7 @@ class Simulation(ABC):
         # pop events and execute until there's none left or end event reached
         evt = ''
         while len(self.__future_event_list.queue):
-            self.print_sim_table_row()
+            self.__print_sim_table_row()
             evt = self.__future_event_list.get()
             if evt.item == Simulation.SIMULATION_END:
                 break
@@ -60,7 +60,7 @@ class Simulation(ABC):
             pass
         pass
 
-    def print_sim_table_header(self):
+    def __print_sim_table_header(self):
         print('clock', end=',')
         for entity in self.entity_list:
             entity.start()
@@ -70,7 +70,7 @@ class Simulation(ABC):
         print()
         pass
 
-    def print_sim_table_row(self):
+    def __print_sim_table_row(self):
         print(self.clock, end=',')
         for e in self.entity_list:
             e.print_state()
@@ -78,13 +78,13 @@ class Simulation(ABC):
         print(f'"{str(self.__future_event_list.queue)}"')
         pass
 
-    def end(self, clock) -> None:
+    def __end(self) -> None:
         """
         Called when the simulation is done. Used to output all statistics
         :return: None
         """
         for entity in self.entity_list:
-            entity.end()
+            entity.end(self.clock)
         pass
 
     def add_event(self, event: Event) -> None:
