@@ -1,12 +1,15 @@
 @startuml
 abstract class Entity
 {
--__sim
+-__sim:Simulation
+-__name:str
 +Entity(simulation:Simulation)
 +{abstract}start()
 +{abstract}handle_event(event:Event)
 +end(clock:float)
 #_add_event(event:Event)
++get_name():str
++print_state()
 }
 
 abstract class Simulation
@@ -14,10 +17,11 @@ abstract class Simulation
 +clock:float
 -__future_event_list:queue.PriorityQueue
 +Simulation()
-+run()
-#{abstract}_start():float
++run(entity_list:list<Entity>, runtime:float)
+-__print_sim_table_header()
+-__print_sim_table_row()
 -__run(float)
-#{abstract}_end(clock)
+-__end()
 +add_event(event:Event)
 }
 
@@ -56,6 +60,7 @@ class WorkStation
 +has_required_components()
 +create_product()
 +handle_event(event:Event)
++print_state()
 }
 
 class Inspector
@@ -70,6 +75,7 @@ class Inspector
 +Inspector(cp)
 +create_component()
 +handle_event(event:Event)
++print_state()
 }
 
 class Buffer
@@ -84,7 +90,7 @@ class Buffer
 +add_inspector(inspector:Inspector)
 +add_component(component:Component)
 +pop_component()
-
++print_state()
 }
 
 class ManufacturingSim
@@ -103,9 +109,7 @@ class ManufacturingSim
 +workstation3:WorkStation
 
 +ManufacturingSim()
-#_start():float
 +run()
-#_end()
 }
 
 Entity <|-- Inspector
@@ -117,7 +121,7 @@ Simulation <|-- ManufacturingSim
 
 'buffers and stuff have 1 to 1 mapping
 
-ManufacturingSim "1" o-- "N" Entity
+Simulation "1" o-- "N" Entity
 
 Inspector -- Component:produces
 WorkStation -- Component:consumes
