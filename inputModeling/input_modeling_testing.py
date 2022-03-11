@@ -2,6 +2,7 @@ from random_number_generation import *
 from generate_distributions import *
 from scipy import stats
 import numpy as np
+np.set_printoptions(suppress=True)
 seed = 45612345431
 
 # Server 1
@@ -15,7 +16,7 @@ for i in range(300):
 
 print(server1_random_values)
 data = np.array(server1_random_values)
-np.savetxt('server1.csv', data, delimiter=',')
+np.savetxt('server1.csv', data, delimiter=',', fmt='%f')
 
 # Server 2
 lam2 = 0.06436
@@ -28,7 +29,7 @@ for i in range(300):
 
 print(server2_random_values)
 data = np.array(server2_random_values)
-np.savetxt('server2.csv', data, delimiter=',')
+np.savetxt('server2.csv', data, delimiter=',', fmt='%f')
 
 # Server 3
 lam3 = 0.048467
@@ -41,7 +42,7 @@ for i in range(300):
 
 print(server3_random_values)
 data = np.array(server3_random_values)
-np.savetxt('server3.csv', data, delimiter=',')
+np.savetxt('server3.csv', data, delimiter=',', fmt='%f')
 
 # Work Station 1
 lam4 = 4.6521
@@ -55,7 +56,7 @@ for i in range(300):
 
 print(work1_random_values)
 data = np.array(work1_random_values)
-np.savetxt('work1.csv', data, delimiter=',')
+np.savetxt('work1.csv', data, delimiter=',', fmt='%f')
 
 # Work Station 2
 lam5 = 10.6815
@@ -69,7 +70,7 @@ for i in range(300):
 
 print(work2_random_values)
 data = np.array(work2_random_values)
-np.savetxt('work2.csv', data, delimiter=',')
+np.savetxt('work2.csv', data, delimiter=',', fmt='%f')
 
 # Work Station 3
 lam6 = 0.113693
@@ -82,4 +83,9 @@ for i in range(300):
 
 print(work3_random_values)
 data = np.array(work3_random_values)
-np.savetxt('work3.csv', data, delimiter=',')
+np.savetxt('work3.csv', data, delimiter=',', fmt='%f')
+
+# Create CSV for random values
+rand_values = generate_random_values(300, seed)
+data = np.array(rand_values)
+np.savetxt('random_values.csv', data, delimiter=',', fmt='%f')
