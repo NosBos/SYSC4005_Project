@@ -48,15 +48,86 @@ class Simulation(ABC):
             self.add_event(Event(runtime, self, Simulation.SIMULATION_END))
             pass
 
+        previous_event = 0
+
+        inspector1_previous_blocked_state = False
+        inspector1_blocked_time = 0
+        inspector2_previous_blocked_state = False
+        inspector2_blocked_time = 0
+
+        buffer1_time = [0,0,0]
+        buffer2_time = [0,0,0]
+        buffer3_time = [0,0,0]
+        buffer4_time = [0,0,0]
+        buffer5_time = [0,0,0]
+
         # pop events and execute until there's none left or end event reached
         evt = ''
+
         while len(self.__future_event_list.queue):
             self.__print_sim_table_row()
             evt = self.__future_event_list.get()
+            # I dont see where we can get the average buffer occupancy so Im going to get it here
+
+            for entity in self.entity_list:
+                if entity.name() == "INSP1":
+                    isBlocked = entity.get_state()
+                    if inspector1_previous_blocked_state:
+                        inspector1_blocked_time += evt.time - self.clock
+                    inspector1_previous_blocked_state = isBlocked
+                elif entity.name() == "INSP2":
+                    isBlocked = entity.get_state()
+                    if inspector2_previous_blocked_state:
+                        inspector2_blocked_time += evt.time - self.clock
+                    inspector2_previous_blocked_state = isBlocked
+
+                elif entity.name() == "C1 WKS1 Buffer":
+                    buffer1_time[entity.get_state()] += evt.time - self.clock
+                elif entity.name() == "C1 WKS2 Buffer":
+                    buffer2_time[entity.get_state()] += evt.time - self.clock
+                elif entity.name() == "C2 WKS2 Buffer":
+                    buffer3_time[entity.get_state()] += evt.time - self.clock
+                elif entity.name() == "C1 WKS3 Buffer":
+                    buffer4_time[entity.get_state()] += evt.time - self.clock
+                elif entity.name() == "C3 WKS3 Buffer":
+                    buffer5_time[entity.get_state()] += evt.time - self.clock
+
+
+
+
             if evt.item == Simulation.SIMULATION_END:
+                print("Inspector 1 Blocked Time: " + str(inspector1_blocked_time))
+                print("Inspector 2 Blocked Time: " + str(inspector2_blocked_time))
+
+                print("Buffer 1 Occupancy Times: " + str(buffer1_time))
+                print("Buffer 2 Occupancy Times: " + str(buffer2_time))
+                print("Buffer 3 Occupancy Times: " + str(buffer3_time))
+                print("Buffer 4 Occupancy Times: " + str(buffer4_time))
+                print("Buffer 5 Occupancy Times: " + str(buffer5_time))
+
+                products_done = 0
+                for entity in self.entity_list:
+                    products_done += entity.products_done()
+                    if entity.name() == "W1":
+                        W1_busy_time = entity.time_busy
+                        pass
+                    elif entity.name() == "W2":
+                        W2_busy_time = entity.time_busy
+                        pass
+                    elif entity.name() == "W3":
+                        W3_busy_time = entity.time_busy
+                        pass
+                print("Total number of products produced: " + str(products_done))
+                print("WorkStation 1 busy time: " + str(W1_busy_time))
+                print("WorkStation 2 busy time: " + str(W2_busy_time))
+                print("WorkStation 3 busy time: " + str(W3_busy_time))
+
+
+
                 break
             self.clock = evt.time
             evt.recipient.handle_event(evt)
+            previous_event = evt
             pass
         pass
 
