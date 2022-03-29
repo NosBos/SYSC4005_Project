@@ -3,6 +3,7 @@ import queue
 from dataclasses import dataclass, field
 from typing import Any
 from abc import ABC, abstractmethod
+import matplotlib.pyplot as plt
 
 
 @dataclass(order=True)
@@ -56,10 +57,15 @@ class Simulation(ABC):
         inspector2_blocked_time = 0
 
         buffer1_time = [0,0,0]
+        buffer1_occupancy = []
         buffer2_time = [0,0,0]
+        buffer2_occupancy = []
         buffer3_time = [0,0,0]
+        buffer3_occupancy = []
         buffer4_time = [0,0,0]
+        buffer4_occupancy = []
         buffer5_time = [0,0,0]
+        buffer5_occupancy = []
 
         # pop events and execute until there's none left or end event reached
         evt = ''
@@ -83,14 +89,19 @@ class Simulation(ABC):
 
                 elif entity.name() == "C1 WKS1 Buffer":
                     buffer1_time[entity.get_state()] += evt.time - self.clock
+                    buffer1_occupancy.append([evt.time, entity.get_state()])
                 elif entity.name() == "C1 WKS2 Buffer":
                     buffer2_time[entity.get_state()] += evt.time - self.clock
+                    buffer2_occupancy.append([evt.time, entity.get_state()])
                 elif entity.name() == "C2 WKS2 Buffer":
                     buffer3_time[entity.get_state()] += evt.time - self.clock
+                    buffer3_occupancy.append([evt.time, entity.get_state()])
                 elif entity.name() == "C1 WKS3 Buffer":
                     buffer4_time[entity.get_state()] += evt.time - self.clock
+                    buffer4_occupancy.append([evt.time, entity.get_state()])
                 elif entity.name() == "C3 WKS3 Buffer":
                     buffer5_time[entity.get_state()] += evt.time - self.clock
+                    buffer5_occupancy.append([evt.time, entity.get_state()])
 
 
 
@@ -99,11 +110,26 @@ class Simulation(ABC):
                 print("Inspector 1 Blocked Time: " + str(inspector1_blocked_time))
                 print("Inspector 2 Blocked Time: " + str(inspector2_blocked_time))
 
+                def get_average_buffer(buffer):
+                    n = 0
+                    value = 0
+                    for index, val in enumerate(buffer):
+                        n += val
+                        value += val * index
+
+                    return value / n
+
+
                 print("Buffer 1 Occupancy Times: " + str(buffer1_time))
+                print("Buffer 1 average: " + str(get_average_buffer(buffer1_time)))
                 print("Buffer 2 Occupancy Times: " + str(buffer2_time))
+                print("Buffer 2 average: " + str(get_average_buffer(buffer2_time)))
                 print("Buffer 3 Occupancy Times: " + str(buffer3_time))
+                print("Buffer 3 average: " + str(get_average_buffer(buffer3_time)))
                 print("Buffer 4 Occupancy Times: " + str(buffer4_time))
+                print("Buffer 4 average: " + str(get_average_buffer(buffer4_time)))
                 print("Buffer 5 Occupancy Times: " + str(buffer5_time))
+                print("Buffer 5 average: " + str(get_average_buffer(buffer5_time)))
 
                 products_done = 0
                 for entity in self.entity_list:
@@ -122,9 +148,47 @@ class Simulation(ABC):
                 print("WorkStation 2 busy time: " + str(W2_busy_time))
                 print("WorkStation 3 busy time: " + str(W3_busy_time))
 
-
+                def graph_buffer_occupancy(buffer_num):
+                    if buffer_num == 1:
+                        plt.plot([x[0] for x in buffer1_occupancy], [x[1] for x in buffer1_occupancy])
+                        plt.title("Buffer C1 W1")
+                        plt.xlabel("Time (minutes)")
+                        plt.ylabel("Buffer occupancy")
+                        plt.ylim([-0.05, 2.05])
+                        plt.show()
+                    elif buffer_num == 2:
+                        plt.plot([x[0] for x in buffer2_occupancy], [x[1] for x in buffer2_occupancy])
+                        plt.title("Buffer C1 W2")
+                        plt.xlabel("Time (minutes)")
+                        plt.ylabel("Buffer occupancy")
+                        plt.ylim([-0.05, 2.05])
+                        plt.show()
+                    elif buffer_num == 3:
+                        plt.plot([x[0] for x in buffer3_occupancy], [x[1] for x in buffer3_occupancy])
+                        plt.title("Buffer C2 W2")
+                        plt.xlabel("Time (minutes)")
+                        plt.ylabel("Buffer occupancy")
+                        plt.ylim([-0.05, 2.05])
+                        plt.show()
+                    elif buffer_num == 4:
+                        plt.plot([x[0] for x in buffer4_occupancy], [x[1] for x in buffer4_occupancy])
+                        plt.title("Buffer C1 W3")
+                        plt.xlabel("Time (minutes)")
+                        plt.ylabel("Buffer occupancy")
+                        plt.ylim([-0.05, 2.05])
+                        plt.show()
+                    elif buffer_num == 5:
+                        plt.plot([x[0] for x in buffer5_occupancy], [x[1] for x in buffer5_occupancy])
+                        plt.title("Buffer C3 W3")
+                        plt.xlabel("Time (minutes)")
+                        plt.ylabel("Buffer occupancy")
+                        plt.ylim([-0.05, 2.05])
+                        plt.show()
+                for i in range(1, 6):
+                    graph_buffer_occupancy(i)
 
                 break
+
             self.clock = evt.time
             evt.recipient.handle_event(evt)
             previous_event = evt

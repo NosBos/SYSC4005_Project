@@ -43,7 +43,7 @@ class ManufacturingSim(Simulation):
         self.buffer5.add_inspector(self.inspector2)
 
         entity_list = [self.inspector1, self.inspector2, self.buffer1, self.buffer2, self.buffer3, self.buffer4, self.buffer5, self.workstation1, self.workstation2, self.workstation3]
-        runtime = 200*Simulation.SECONDS
+        runtime = 1000*Simulation.SECONDS
         self.run(entity_list, runtime)
 
     def _end(self, clock) -> None:
