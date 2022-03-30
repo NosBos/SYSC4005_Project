@@ -223,8 +223,8 @@ class Simulation(ABC):
                         plt.ylabel("Buffer occupancy")
                         plt.ylim([-0.05, 2.05])
                         plt.show()
-                #for i in range(1, 6):
-                #    graph_buffer_occupancy(i)
+                for i in range(1, 6):
+                    graph_buffer_occupancy(i)
 
                 break
 
