@@ -16,6 +16,30 @@ class Event:
         return f"{self.time} : {str(self.item)} "
 
 
+class Result:
+    def __init__(self):
+        self.products_produced = 0
+        self.p1_produced = 0
+        self.p2_produced = 0
+        self.p3_produced = 0
+        self.inspector1_blocked_time = 0
+        self.inspector2_blocked_time = 0
+        self.buffer1_average_size = 0
+        self.buffer2_average_size = 0
+        self.buffer3_average_size = 0
+        self.buffer4_average_size = 0
+        self.buffer5_average_size = 0
+        self.wk1_busy = 0
+        self.wk2_busy = 0
+        self.wk3_busy = 0
+        self.products_produced = 0
+        pass
+
+    def __repr__(self):
+        return f"{self.products_produced},{self.p1_produced},{self.p2_produced},{self.p3_produced},{self.inspector1_blocked_time},{self.inspector2_blocked_time}," \
+               f"{self.buffer1_average_size},{self.buffer2_average_size},{self.buffer3_average_size},{self.buffer4_average_size},{self.buffer5_average_size}," \
+               f"{self.wk1_busy},{self.wk2_busy},{self.wk3_busy},{self.products_produced}"
+
 class Simulation(ABC):
     """
     Simulation base class. It handles everything to do with the future event list.
@@ -26,7 +50,8 @@ class Simulation(ABC):
     HOURS = 3600
     SIMULATION_END = "SIMULATION END"
 
-    def __init__(self):
+    def __init__(self, result):
+        self.result = result
         self.clock = 0
         self.__future_event_list = queue.PriorityQueue()
         self.entity_list = []
@@ -109,6 +134,8 @@ class Simulation(ABC):
             if evt.item == Simulation.SIMULATION_END:
                 print("Inspector 1 Blocked Time: " + str(inspector1_blocked_time))
                 print("Inspector 2 Blocked Time: " + str(inspector2_blocked_time))
+                self.result.inspector1_blocked_time = inspector1_blocked_time
+                self.result.inspector2_blocked_time = inspector2_blocked_time
 
                 def get_average_buffer(buffer):
                     n = 0
@@ -130,23 +157,35 @@ class Simulation(ABC):
                 print("Buffer 4 average: " + str(get_average_buffer(buffer4_time)))
                 print("Buffer 5 Occupancy Times: " + str(buffer5_time))
                 print("Buffer 5 average: " + str(get_average_buffer(buffer5_time)))
+                self.result.buffer1_average_size = get_average_buffer(buffer1_time)
+                self.result.buffer2_average_size = get_average_buffer(buffer2_time)
+                self.result.buffer3_average_size = get_average_buffer(buffer3_time)
+                self.result.buffer4_average_size = get_average_buffer(buffer4_time)
+                self.result.buffer5_average_size = get_average_buffer(buffer5_time)
 
                 products_done = 0
                 for entity in self.entity_list:
                     products_done += entity.products_done()
                     if entity.name() == "W1":
                         W1_busy_time = entity.time_busy
+                        self.result.p1_produced +=entity.products_done()
                         pass
                     elif entity.name() == "W2":
                         W2_busy_time = entity.time_busy
+                        self.result.p2_produced += entity.products_done()
                         pass
                     elif entity.name() == "W3":
                         W3_busy_time = entity.time_busy
+                        self.result.p3_produced += entity.products_done()
                         pass
                 print("Total number of products produced: " + str(products_done))
                 print("WorkStation 1 busy time: " + str(W1_busy_time))
                 print("WorkStation 2 busy time: " + str(W2_busy_time))
                 print("WorkStation 3 busy time: " + str(W3_busy_time))
+                self.result.products_produced = products_done
+                self.result.wk1_busy = W1_busy_time
+                self.result.wk2_busy = W2_busy_time
+                self.result.wk3_busy = W3_busy_time
 
                 def graph_buffer_occupancy(buffer_num):
                     if buffer_num == 1:
@@ -184,8 +223,8 @@ class Simulation(ABC):
                         plt.ylabel("Buffer occupancy")
                         plt.ylim([-0.05, 2.05])
                         plt.show()
-                for i in range(1, 6):
-                    graph_buffer_occupancy(i)
+                #for i in range(1, 6):
+                #    graph_buffer_occupancy(i)
 
                 break
 

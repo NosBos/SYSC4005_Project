@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from Framework import Simulation
+from Framework import Simulation, Result
 from Product import Product
 from Component import Component
 from Entities import Inspector, Buffer, WorkStation
@@ -11,11 +11,10 @@ from inputModeling.generate_distributions import *
 
 
 class ManufacturingSim(Simulation):
-    def __init__(self, seed1):
-        super(ManufacturingSim, self).__init__()
+    def __init__(self, seed1, result):
+        super(ManufacturingSim, self).__init__(result)
         max_amount = 300
         random_values = generate_random_values(max_amount * 5, seed)
-
 
         self.buffer1 = Buffer(self, "C1 WKS1 Buffer", Component.C1, 1)
         self.buffer2 = Buffer(self, "C1 WKS2 Buffer", Component.C1, 2)
@@ -52,9 +51,20 @@ class ManufacturingSim(Simulation):
 
 
 if __name__ == "__main__":
-    try:
-        seed = int(input("Seed:"))
-    except ValueError:
-        print("That is not a whole number")
-    random.seed(seed)
-    sim = ManufacturingSim(seed)
+    rs=[]
+    replications = int(input("Enter number of replications:\t"))
+
+    primes = [907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887,701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797]
+
+
+    for i in range(replications):
+        seed = primes[i] #int(input("Seed:\t"))
+
+        random.seed(seed)
+        r = Result()
+        sim = ManufacturingSim(seed, r)
+        rs+=[r]
+    print('===Results===')
+    print("products_produced,p1_produced,p2_produced,p3_produced,inspector1_blocked_time,inspector2_blocked_time,buffer1_average_size,buffer2_average_size,buffer3_average_size,buffer4_average_size,buffer5_average_size,wk1_busy,wk2_busy,wk3_busy,products_produced")
+    for r in rs:
+        print(r)
