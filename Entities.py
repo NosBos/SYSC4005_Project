@@ -12,7 +12,7 @@ from inputModeling.generate_distributions import *
 
 class Inspector(Entity):
 
-    def __init__(self, simulation: Simulation, name: str, component_type_list: List[Component], buffer_list, random_values):
+    def __init__(self, simulation: Simulation, name: str, component_type_list: List[Component], buffer_list, random_values, alternative_mode):
         # We can remove component type list and derive it from the buffer list
         super(Inspector, self).__init__(simulation, name)
         self.type = component_type_list
@@ -23,6 +23,7 @@ class Inspector(Entity):
         self.time_blocked_start = 0
         self.random_values = random_values
         self.random_values_increment = 0
+        self.alternative_mode = alternative_mode
 
     def start(self) -> None:
         component_to_generate = random.choice(self.type)
@@ -44,7 +45,12 @@ class Inspector(Entity):
                          len(buffer.queue) < 2]
 
         # Sort list by both buffer size and priority
-        valid_buffers.sort(key=lambda x: (len(x.queue), x.priority))
+        # Regular mode
+        if self.alternative_mode == 0:
+            valid_buffers.sort(key=lambda x: (len(x.queue), x.priority))
+        # Alternative Mode
+        else:
+            valid_buffers.sort(key=lambda x: (len(x.queue), -x.priority))
 
         if len(valid_buffers) == 0:
             # Block the inspector
